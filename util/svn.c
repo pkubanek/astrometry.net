@@ -60,11 +60,17 @@ AN_THREAD_DECLARE_STATIC_ONCE(svn_once);
 static void runonce(void) {
     const char* cptr;
     const char* str;
+    char *dp;
 
 	// trim off the first seven and last two characters: "$" + "Date: " + DATE STRING + " $"
 	// for non-svn (eg git-to-svn), DATE STRING (and probably the trailing space) are not there
-	if (strlen(date) > 9)
+	if (strlen(date) > 9) {
 		strncpy(date_rtnval, date + 7, strlen(date) - 9);
+		// replace all non-ASCII characters with space
+		for (dp = date_rtnval; *dp != '0'; dp++)
+			if (!isascii(*dp))
+				*dp = ' ';
+	}
 
 	// rev+1 to avoid having "$" in the format string - otherwise svn seems to
 	// consider it close enough to the Revision keyword anchor to do replacement!
